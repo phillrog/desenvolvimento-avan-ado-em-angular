@@ -11,7 +11,8 @@ import { ContaAppComponent } from './conta.app.component';
 
 import { ContaRoutingModule } from './cont.route';
 
-
+import { CustomFormsModule } from 'ngx-custom-validators'
+import { ContaService } from './services/conta.service';
 
 @NgModule({
   declarations: [
@@ -25,8 +26,11 @@ import { ContaRoutingModule } from './cont.route';
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
-
+    HttpClientModule,
+    CustomFormsModule
+  ],
+  providers: [
+    ContaService
   ]
 })
 export class ContaModule { }
