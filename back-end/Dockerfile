@@ -1,14 +1,18 @@
-### Estágio 1 - Obter o source e gerar o Build ###
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS dotnet-builder
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
+
 COPY . /app
+
+RUN chmod +x ./entrypoint.sh
+
 RUN dotnet restore src/DevIO.Api/DevIO.Api.csproj
 RUN dotnet publish src/DevIO.Api/DevIO.Api.csproj -c Release -o /app/publish 
 
-### Estágio 2 - Subir a aplicação através dos binários ###
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
-WORKDIR /app
+
+COPY --from=base /app/publish .
+
 EXPOSE 80
 EXPOSE 443
-COPY --from=dotnet-builder /app/publish .
+CMD /bin/bash ./entrypoint.sh
+
 ENTRYPOINT ["dotnet", "DevIO.Api.dll"]
