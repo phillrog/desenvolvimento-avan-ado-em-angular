@@ -13,6 +13,7 @@ import { DetalhesComponent } from './detalhes/detalhes.component';
 import { HttpClientModule } from '@angular/common/http';
 import { TextMaskModule } from 'angular2-text-mask';
 import { NgBrazil } from 'ng-brazil'
+import { FornecedorResolve } from './services/fornecedor.resolve';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { NgBrazil } from 'ng-brazil'
     DetalhesComponent
   ],
   imports: [
-    CommonModule,
+  
+  CommonModule,
     FornecedorRoutingModule,
     FormsModule,
     ReactiveFormsModule,
@@ -33,7 +35,8 @@ import { NgBrazil } from 'ng-brazil'
     NgBrazil
   ],
   providers: [
-    FornecedorService
+    FornecedorService,
+    FornecedorResolve
   ]
 })
 export class FornecedorModule { }
