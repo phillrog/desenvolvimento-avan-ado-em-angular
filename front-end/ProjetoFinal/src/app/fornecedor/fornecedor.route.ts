@@ -17,6 +17,7 @@ const fornecedorRouterConfig: Routes = [
             { path: 'listar-todos', component: ListaComponent },
             { path: 'adicionar-novo', component: NovoComponent,
               canActivate: [FornececedorGuard],
+              canDeactivate: [FornececedorGuard],
               data: [{claim: {nome: 'Fornecedor', valor: 'Adicionar'}}]
             },
             { path: 'editar/:id', component: EditarComponent, 
