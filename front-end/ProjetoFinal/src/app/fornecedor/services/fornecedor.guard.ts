@@ -20,9 +20,9 @@ export class FornececedorGuard implements CanActivate, CanDeactivate<NovoCompone
 
     canActivate(routeAc: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
 
-        if (!this.localStorageUtils.obterTokenUsuario()) {
-            this.router.navigate(['/conta/login']);
-        }
+        if(!this.localStorageUtils.obterTokenUsuario()){
+            this.router.navigate(['/conta/login/'], { queryParams: { returnUrl: this.router.url }});
+        } 
 
         let user = this.localStorageUtils.obterUsuario();
         let claim: any = routeAc.data[0];

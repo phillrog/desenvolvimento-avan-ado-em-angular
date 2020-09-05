@@ -24,7 +24,7 @@ export class FornecedorService extends BaseService {
 
     obterTodos(): Observable<Fornecedor[]> {
         return this.http
-            .get<Fornecedor[]>(this.UrlServiceV1 + "fornecedores")
+            .get<Fornecedor[]>(this.UrlServiceV1 + "fornecedores", super.ObterAuthHeaderJson())
             .pipe(catchError(super.serviceError));
     }
 
