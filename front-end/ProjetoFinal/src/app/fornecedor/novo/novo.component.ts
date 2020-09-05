@@ -14,12 +14,13 @@ import { utilsBr } from 'js-brasil';
 import { MASKS, NgBrazilValidators } from 'ng-brazil';
 import { StringUtils } from './../../utils/string-utils';
 import { CepConsulta } from './../models/cep';
+import { FormBaseComponent } from 'src/app/base-components/form-base.component';
 
 @Component({
   selector: 'app-novo',
   templateUrl: './novo.component.html'
 })
-export class NovoComponent implements OnInit {
+export class NovoComponent extends FormBaseComponent implements OnInit {
 
   @ViewChildren(FormControlName, { read: ElementRef }) formInputElements: ElementRef[];
 
@@ -27,21 +28,16 @@ export class NovoComponent implements OnInit {
   fornecedorForm: FormGroup;
   fornecedor: Fornecedor = new Fornecedor();
 
-  validationMessages: ValidationMessages;
-  genericValidator: GenericValidator;
-  displayMessage: DisplayMessage = {};
-
   MASKS = utilsBr.MASKS;
   textoDocumento: string = 'CPF (requerido)';
   formResult: string = '';
-
-  mudancasNaoSalvas: boolean;
 
   constructor(private fb: FormBuilder,
     private fornecedorService: FornecedorService,
     private router: Router,
     private toastr: ToastrService) {
-
+    
+    super();
     this.validationMessages = {
       nome: {
         required: 'Informe o Nome',
@@ -72,7 +68,7 @@ export class NovoComponent implements OnInit {
       }
     };
 
-    this.genericValidator = new GenericValidator(this.validationMessages);
+    super.configurarMensagensValidacaoBase(this.validationMessages);
   }
 
   ngOnInit() {
@@ -101,11 +97,11 @@ export class NovoComponent implements OnInit {
     this.tipoFornecedorForm().valueChanges
       .subscribe(() => {
         this.trocarValidacaoDocumento();
-        this.configurarElementosValidacao();
-        this.validarFormulario();
+        super.configurarValidacaoFormularioBase(this.formInputElements, this.fornecedorForm);
+        super.validarFormulario(this.fornecedorForm);
       });
 
-    this.configurarElementosValidacao();
+    super.configurarValidacaoFormularioBase(this.formInputElements, this.fornecedorForm);
   }
 
    adicionarFornecedor() {
@@ -144,21 +140,7 @@ export class NovoComponent implements OnInit {
     this.errors = fail.error.errors;
     this.toastr.error('Ocorreu um erro!', 'Opa :(');
   }
-
-  configurarElementosValidacao() {
-    let controlBlurs: Observable<any>[] = this.formInputElements
-      .map((formControl: ElementRef) => fromEvent(formControl.nativeElement, 'blur'));
-
-    merge(...controlBlurs).subscribe(() => {
-      this.validarFormulario();
-    });
-  }
-
-  validarFormulario() {
-    this.displayMessage = this.genericValidator.processarMensagens(this.fornecedorForm);
-    this.mudancasNaoSalvas = true;
-  }
-
+  
   trocarValidacaoDocumento() {
     this.documento().clearValidators();
     if (this.tipoFornecedorForm().value === "1") {      
