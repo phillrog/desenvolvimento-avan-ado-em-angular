@@ -1,69 +1,42 @@
 import { Component, OnInit, ViewChildren, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControlName } from '@angular/forms';
+import { FormBuilder, Validators, FormControlName } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { Observable, fromEvent, merge } from 'rxjs';
 
-import { utilsBr } from 'js-brasil';
 import { ToastrService } from 'ngx-toastr';
+import { ImageCroppedEvent, ImageTransform, Dimensions } from 'ngx-image-cropper';
 
-import { ValidationMessages, GenericValidator, DisplayMessage } from 'src/app/utils/generic-form-validation';
-
-import { Produto, Fornecedor } from '../models/produto';
 import { ProdutoService } from '../services/produto.service';
+import { ProdutoBaseComponent } from '../produto-form.base.component';
+import { CurrencyUtils } from './../../utils/currency-utils';
 
 
 @Component({
   selector: 'app-novo',
   templateUrl: './novo.component.html'
 })
-export class NovoComponent implements OnInit {
+export class NovoComponent extends ProdutoBaseComponent implements OnInit {
 
   @ViewChildren(FormControlName, { read: ElementRef }) formInputElements: ElementRef[];
 
-  produto: Produto;
-  fornecedores: Fornecedor[];
-  errors: any[] = [];
-  produtoForm: FormGroup;
-
-  validationMessages: ValidationMessages;
-  genericValidator: GenericValidator;
-  displayMessage: DisplayMessage = {};
-
-  MASKS = utilsBr.MASKS;
-  formResult: string = '';
+  imageChangedEvent: any = '';
+  croppedImage: any = '';
+  canvasRotation = 0;
+  rotation = 0;
+  scale = 1;
+  showCropper = false;
+  containWithinAspectRatio = false;
+  transform: ImageTransform = {};
+  imageURL: string;
+  imagemNome: string;
 
   mudancasNaoSalvas: boolean;
 
   constructor(private fb: FormBuilder,
     private produtoService: ProdutoService,
     private router: Router,
-    private toastr: ToastrService) {
-
-    this.validationMessages = {
-      fornecedorId: {
-        required: 'Escolha um fornecedor',
-      },
-      nome: {
-        required: 'Informe o Nome',
-        minlength: 'Mínimo de 2 caracteres',
-        maxlength: 'Máximo de 200 caracteres'
-      },
-      descricao: {
-        required: 'Informe a Descrição',
-        minlength: 'Mínimo de 2 caracteres',
-        maxlength: 'Máximo de 1000 caracteres'
-      },
-      imagem: {
-        required: 'Informe a Imagem',
-      },
-      valor: {
-        required: 'Informe o Valor',
-      }
-    };
-
-    this.genericValidator = new GenericValidator(this.validationMessages);
-  }
+    private toastr: ToastrService) { super(); }
 
   ngOnInit(): void {
 
@@ -82,19 +55,16 @@ export class NovoComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    let controlBlurs: Observable<any>[] = this.formInputElements
-      .map((formControl: ElementRef) => fromEvent(formControl.nativeElement, 'blur'));
-
-    merge(...controlBlurs).subscribe(() => {
-      this.displayMessage = this.genericValidator.processarMensagens(this.produtoForm);
-      this.mudancasNaoSalvas = true;
-    });
+    super.configurarValidacaoFormulario(this.formInputElements);
   }
 
   adicionarProduto() {
     if (this.produtoForm.dirty && this.produtoForm.valid) {
       this.produto = Object.assign({}, this.produto, this.produtoForm.value);
-      this.formResult = JSON.stringify(this.produto);
+
+      this.produto.imagemUpload = this.croppedImage.split(',')[1];
+      this.produto.imagem = this.imagemNome;
+      this.produto.valor = CurrencyUtils.StringParaDecimal(this.produto.valor);
 
       this.produtoService.novoProduto(this.produto)
         .subscribe(
@@ -121,6 +91,23 @@ export class NovoComponent implements OnInit {
   processarFalha(fail: any) {
     this.errors = fail.error.errors;
     this.toastr.error('Ocorreu um erro!', 'Opa :(');
-  }  
+  }
+
+  fileChangeEvent(event: any): void {
+    this.imageChangedEvent = event;
+    this.imagemNome = event.currentTarget.files[0].name;
+  }
+  imageCropped(event: ImageCroppedEvent) {
+    this.croppedImage = event.base64;
+  }
+  imageLoaded() {
+    this.showCropper = true;
+  }
+  cropperReady(sourceImageDimensions: Dimensions) {
+    console.log('Cropper ready', sourceImageDimensions);
+  }
+  loadImageFailed() {
+    this.errors.push('O formato do arquivo ' + this.imagemNome + ' não é aceito.');
+  }
 }
 
