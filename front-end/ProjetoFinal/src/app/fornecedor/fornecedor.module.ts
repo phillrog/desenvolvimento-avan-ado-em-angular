@@ -14,6 +14,7 @@ import { TextMaskModule } from 'angular2-text-mask';
 import { NgBrazil } from 'ng-brazil'
 import { FornecedorResolve } from './services/fornecedor.resolve';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { FornececedorGuard } from './services/fornecedor.guard';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
   ],
   providers: [
     FornecedorService,
-    FornecedorResolve
+    FornecedorResolve,
+    FornececedorGuard
   ]
 })
 export class FornecedorModule { }
