@@ -116,7 +116,8 @@ export class NovoComponent implements OnInit {
 
       this.fornecedor.endereco.cep = StringUtils.somenteNumeros(this.fornecedor.endereco.cep);
       this.fornecedor.documento = StringUtils.somenteNumeros(this.fornecedor.documento);
-
+      this.fornecedor.tipoFornecedor = Number(this.fornecedor.tipoFornecedor);
+      
       this.fornecedorService.novoFornecedor(this.fornecedor)
         .subscribe(
           sucesso => { this.processarSucesso(sucesso) },

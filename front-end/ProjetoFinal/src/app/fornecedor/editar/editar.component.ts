@@ -14,6 +14,8 @@ import { Fornecedor } from '../models/fornecedor';
 import { Endereco } from '../models/endereco';
 import { FornecedorService } from '../services/fornecedor.service';
 import { StringUtils } from 'src/app/utils/string-utils';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CepConsulta } from '../models/cep';
 
 @Component({
   selector: 'app-editar',
@@ -44,7 +46,8 @@ export class EditarComponent implements OnInit {
     private fornecedorService: FornecedorService,
     private router: Router,
     private toastr: ToastrService,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private modalService: NgbModal) {
 
     this.validationMessages = {
       nome: {
@@ -121,6 +124,7 @@ export class EditarComponent implements OnInit {
     if (this.fornecedorForm.dirty && this.fornecedorForm.valid) {
 
       this.fornecedor = Object.assign({}, this.fornecedor, this.fornecedorForm.value);
+      this.fornecedor.tipoFornecedor = Number(this.fornecedor.tipoFornecedor);
       this.fornecedor.documento = StringUtils.somenteNumeros(this.fornecedor.documento);
 
       this.fornecedorService.atualizarFornecedor(this.fornecedor)
@@ -209,5 +213,60 @@ export class EditarComponent implements OnInit {
 
   validarFormulario() {
     this.displayMessage = this.genericValidator.processarMensagens(this.fornecedorForm);
+  }
+
+  abrirModal(content) {
+    this.modalService.open(content);
+  }
+
+  buscarCep(cep: string) {
+
+    cep = StringUtils.somenteNumeros(cep);
+    if (cep.length < 8) return;
+
+    this.fornecedorService.consultarCep(cep)
+      .subscribe(
+        cepRetorno => this.preencherEnderecoConsulta(cepRetorno),
+        erro => this.errors.push(erro));
+  }
+
+  preencherEnderecoConsulta(cepConsulta: CepConsulta) {
+
+    this.enderecoForm.patchValue({
+      logradouro: cepConsulta.logradouro,
+      bairro: cepConsulta.bairro,
+      cep: cepConsulta.cep,
+      cidade: cepConsulta.localidade,
+      estado: cepConsulta.uf
+    });
+  }
+
+  editarEndereco() {
+    if (this.enderecoForm.dirty && this.enderecoForm.valid) {
+
+      this.endereco = Object.assign({}, this.endereco, this.enderecoForm.value);
+      
+      this.endereco.cep = StringUtils.somenteNumeros(this.endereco.cep);
+      this.endereco.fornecedorId = this.fornecedor.id;
+
+      this.fornecedorService.atualizarEndereco(this.endereco)
+        .subscribe(
+          () => this.processarSucessoEndereco(this.endereco),
+          falha => { this.processarFalhaEndereco(falha) }
+        );
+    }
+  }
+
+  processarSucessoEndereco(endereco: Endereco) {
+    this.errors = [];
+
+    this.toastr.success('Endereço atualizado com sucesso!', 'Sucesso!');
+    this.fornecedor.endereco = endereco
+    this.modalService.dismissAll();
+  }
+
+  processarFalhaEndereco(fail: any) {
+    this.errorsEndereco = fail.error.errors;
+    this.toastr.error('Ocorreu um erro!', 'Opa :(');
   }
 }
