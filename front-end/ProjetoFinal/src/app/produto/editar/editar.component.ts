@@ -11,6 +11,7 @@ import { ValidationMessages, GenericValidator, DisplayMessage } from 'src/app/ut
 
 import { Produto, Fornecedor } from '../models/produto';
 import { ProdutoService } from '../services/produto.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-editar',
@@ -33,6 +34,7 @@ export class EditarComponent implements OnInit {
   formResult: string = '';
 
   mudancasNaoSalvas: boolean;
+  imagens: string = environment.imagensUrl;
 
   constructor(private fb: FormBuilder,
     private produtoService: ProdutoService,
