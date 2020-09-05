@@ -2,14 +2,13 @@ import { Component, OnInit, ViewChildren, ElementRef } from '@angular/core';
 import { FormBuilder, Validators, FormControlName } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { Observable, fromEvent, merge } from 'rxjs';
 
 import { ToastrService } from 'ngx-toastr';
 import { ImageCroppedEvent, ImageTransform, Dimensions } from 'ngx-image-cropper';
 
 import { ProdutoService } from '../services/produto.service';
+import { CurrencyUtils } from 'src/app/utils/currency-utils';
 import { ProdutoBaseComponent } from '../produto-form.base.component';
-import { CurrencyUtils } from './../../utils/currency-utils';
 
 
 @Component({
@@ -30,8 +29,6 @@ export class NovoComponent extends ProdutoBaseComponent implements OnInit {
   transform: ImageTransform = {};
   imageURL: string;
   imagemNome: string;
-
-  mudancasNaoSalvas: boolean;
 
   constructor(private fb: FormBuilder,
     private produtoService: ProdutoService,
