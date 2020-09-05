@@ -34,7 +34,7 @@ export abstract class AppBasePage {
 
     login(){
         this.navegarPorLink('Entrar');
-        this.email.sendKeys('phillrog@hotmail.com');
+        this.email.sendKeys('teste@teste.com');
         this.senha.sendKeys('Bph3br4$');
 
         element(by.id('Login')).click();
